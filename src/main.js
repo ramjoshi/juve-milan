@@ -11,11 +11,17 @@ $(function() {
                 o[2] = Date.parse(o[2]);
                 o[7] = parseInt(o[7]);
             });
-            yearly = _.groupBy(csv, function(row) {
+            byYear = _.groupBy(csv, function(row) {
                 return row[2].toString('yyyy');
             });
+            yearly = {};
+            _.each(byYear, function(rows, year) {
+                var minute = _.groupBy(rows, function(row) {
+                    return row[7]
+                });
+                yearly[year] = minute;
+            });
             console.log(yearly);
-            
         });
     }
 
