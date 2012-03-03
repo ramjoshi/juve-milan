@@ -1,6 +1,7 @@
 $(function() {
     var teams = ['juve', 'milan']; // declare team names to match names of respective csv files.
-
+    var years = [];
+    var yearly = {};
     var loadData = function(team) {
         data = 'assets/data/' + team + '-goals.csv';
         d3.text(data, function(datasetText) {
@@ -14,14 +15,40 @@ $(function() {
             byYear = _.groupBy(csv, function(row) {
                 return row[2].toString('yyyy');
             });
-            yearly = {};
             _.each(byYear, function(rows, year) {
                 var minute = _.groupBy(rows, function(row) {
-                    return row[7]
+                    return row[7];
                 });
+                years.push(year);
                 yearly[year] = minute;
             });
-            console.log(yearly);
+            var svg = d3.select("#table")
+                .append("svg")
+                .attr("width", 2000)
+                .attr("height", 800);
+            svg.selectAll("rect")
+                   .data(years)
+                   .enter()
+                   .append("rect")
+                   .attr("x", function(d, i) {
+                       return i*10;
+                   })
+                   .attr("y", function(d, i) {
+                       var goals = 0;
+                       for(m in yearly[d]) {
+                           goals += 1;
+                       }
+                       return 800 - goals*20;
+                   })
+                   .attr("width", 5)
+                   .attr("height", function(d, i) {
+                       var goals = 0;
+                       for(m in yearly[d]) {
+                           goals += 1;
+                       }
+                       if(goals==9){console.log(d);}
+                       return goals*20;
+                   })
         });
     }
 
