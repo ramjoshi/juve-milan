@@ -65,13 +65,14 @@ $(function() {
         var xunit = width/88;
         var height = $('#graph svg').height();
         var barheight_factor = height*0.9/maxy;
+        var data = _.range(10, 110, 10);
         svg.selectAll('rect.'+align)
-            .data(_.range(10, 110, 10))
+            .data(data)
             .enter()
             .append('rect').attr('class', align)
             .attr('x', function(d, i) {
                 if(align=='left') return 9*i*xunit;
-                else return (9*i-5)*xunit;
+                else return (9*i+4)*xunit;
             })
             .attr('y', function(d, i) {
                 if(mindata[d]) return height - mindata[d].length*barheight_factor;
@@ -82,6 +83,34 @@ $(function() {
                 if(mindata[d]) return mindata[d].length*barheight_factor;
                 else return 0;
             });
+            // x axis
+            svg.selectAll('text.x')
+            .data(data)
+            .enter()
+            .append('text').attr('class', 'x')
+            .text(function(d, i) {
+                return d-10 + 'm - ' + d + 'm';
+            })
+            .attr('x', function(d, i) {
+                return (9*i+2)*xunit
+            })
+            .attr('y', height+10);
+            // y labels
+            svg.selectAll('text.y'+align)
+            .data(data)
+            .enter()
+            .append('text').attr('class', 'y'+align)
+            .text(function(d, i) {
+                return mindata[d].length;
+            })
+            .attr('x', function(d, i) {
+                if(align=='left') return (9*i+1)*xunit;
+                else return (9*i+5)*xunit;
+            })
+            .attr('y', function(d, i) {
+                if(mindata[d]) return height - 10 - mindata[d].length*barheight_factor;
+                return height;
+            })
     }
 
     function initMinutelyData(team, fromYear, toYear, fromMin, toMin, callback) {
