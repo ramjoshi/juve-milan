@@ -76,13 +76,13 @@ $(function(){
                        for(m in yearly[d]) {
                            goals += 1;
                        }
-                       if(goals==9){console.log(d);}
+                      
                       return goals*20;
 		       })
 
 
 		   //Tooltip configuration here
-		       $('rect').qtip({
+		      /* $('rect').qtip({
 
 				
 				   content: 'Juve',
@@ -97,14 +97,14 @@ $(function(){
 					          color: '#6699CC'
 					       },
 				         width: 200
-				   }  });
+				   }  });*/
 
 
 
 
 		}
 
-		   else{
+		   else if(team==='milan'){
 		        var svg2 = d3.select("#table")
                 		.append("svg")
 		                .attr("width", 1350)
@@ -130,27 +130,47 @@ $(function(){
                        for(m in yearly[d]) {
                            goals += 1;
                        }
-                       if(goals==9){console.log(d);}
+                       
                       return goals*20;
 		   } )
 		
 
 		   //Tooltip functionality here
 		   $('rect').qtip({
+				   
+			  	   show: { when:'click',
+					   solo:true,
+		   			   
+			   		   effect:{
+						   type:'slide',
+		   				   length:200},
+					},
 
-				
+
+		  		   hide:'unfocus', 
 				   content: 'Milan',
-		   		   corner: {
-				         target: 'bottomLeft',
-		            		 tooltip: 'bottomLeft'
-			                  },
+
+		   	           position: {
+					 corner: {
+						 target: 'topMiddle', 
+		                 		 tooltip: 'topMiddle'
+			               		},
+		   			adjust:{
+						screen: true,
+						y: 200
+					       },	
+		   		   	     },
 				   style: { 
 				         border: {
 					          width: 3,
 					          radius: 8,
-					          color: '#6699CC'
+					          color: 'black'
 					       },
-				         width: 200
+				         width: 300,
+			   		 height:300,
+					 tip:{
+						 corner:'topMiddle'
+					 },
 				   }  });
 
 		 }

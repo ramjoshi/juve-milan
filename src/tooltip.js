@@ -1,4 +1,4 @@
-	 $(document).ready(function() {
+	 /*:$(document).ready(function() {
 		 		    // do stuff when DOM is ready
 				     		    
 		 $("#table.svg rect").qtip({
