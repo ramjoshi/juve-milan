@@ -13,28 +13,18 @@ body {
     background-color: @bg;
 }
 article {
-    margin: 2em 2em;
+    margin: 2em;
 }
-section {
-    ul {
-        font-size: 2.5em;
-        white-space: nowrap;
-        color: @grey30;
-        li {
-            display: inline-block;
-            margin: 0em 1em;
-            white-space: normal;
-            width: 4em;
-            list-style-type: none;
+#graph {
+    svg {
+        width: 102.4em;
+        height: 50em;
+
+        rect.left {
+            fill: red;
+        }
+        rect.right {
+            fill: blue;
         }
     }
-}
-a.nav  {
-    font-size: 3em;
-    margin: 0em 1em;
-    text-decoration: none;
-    color: @grey25;
-}
-a.selected {
-    text-decoration: underline;
 }

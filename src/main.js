@@ -25,61 +25,88 @@ $(function() {
         return _.indexOf(columns, column);
     }
 
-    // Returns data that falls in the from-to year range.
-    function dataInYearRange(data, from, to) {
-        return _.filter(data, function(row) {
-            var year = parseInt(row[columnIndex('date')].toString('yyyy'));
-            return (year >= from && year <= to);
-        });
-    }
-
-    /* 
-     * Groups data by year in the from-to year range.
-     * From-to are integers representing years.
-     */
-    function yearlyData(data, from, to) {
-        return _.groupBy(dataInYearRange(data, from, to), function(row) {
+    _.mixin({
+        dataInYearRange: function (data, from, to) {
+            return _.filter(data, function(row) {
+                var year = parseInt(row[columnIndex('date')].toString('yyyy'));
+                return (year >= from && year <= to);
+            });
+        },
+        dataInMinuteRange: function (data, from, to) {
+            return _.filter(data, function(row) {
+                var month = row[columnIndex('min')];
+                return (month >= from && month <= to);
+            });
+        },
+        yearlyData: function (data) {
+            return _.groupBy(data, function(row) {
                 return row[columnIndex('date')].toString('yyyy');
-        });
-    }
+            });
+        },
+        minutelyData: function (data, from, to) {
+            return _.groupBy(data, function(row) {
+                return row[columnIndex('min')];
+            });
+        },
+        maxGoals: function (data) {
+            return _.max(data, function(d) {
+                return d.length;
+            }).length;
+        }
+    });
 
-    /*
-     * Groups data by minute in the from-to year range.
-     */
-    function minutelyData(data, fromYear, toYear) {
-        return _.groupBy(dataInYearRange(data, fromYear, toYear), function(row) {
-            return row[columnIndex('min')];
-        });
-    }
-
-    function updateGraph(dataset) {
-        var svg = d3.select("#graph")
-                .append("svg")
-                .attr("width", 2000)
-                .attr("height", 800);
-        console.log(dataset);
-        svg.selectAll("rect")
-            .data(dataset)
+    function updateMinutelyGraph(mindata, maxy, align, from, to) {
+        from = from || 0;
+        to = (to+1) || 101;
+        var svg = d3.select("#graph svg");
+        var width = $('#graph svg').width();
+        var barwidth = width/(3*(2*(to-from)-1));
+        var height = $('#graph svg').height();
+        var barheight_factor = height*0.9/maxy;
+        svg.selectAll('rect.'+align)
+            .data(_.range(from, to))
             .enter()
-            .append("rect")
+            .append("rect").attr('class', align)
             .attr("x", function(d, i) {
-                return i*10;
+                if(align=='left') return 6*i*barwidth;
+                else return (2+6*i)*barwidth;
             })
             .attr("y", function(d, i) {
-                return 800 - i*20;
+                if(mindata[d]) return height - mindata[d].length*barheight_factor;
+                return height;
             })
-            .attr("width", 5)
+            .attr("width", barwidth)
             .attr("height", function(d, i) {
-                var goals = 0;
-                for(m in yearly[d]) {
-                    goals += 1;
-                }
-                if(goals==9){console.log(d);}
-                return goals*20;
+                if(mindata[d]) return mindata[d].length*barheight_factor;
+                else return 0;
             });
     }
 
-    loadData('juve', function(data) {
-        updateGraph(yearlyData(data, 1900, 2000));
-    });
+    function initMinutelyData(team, fromYear, toYear, fromMin, toMin, callback) {
+        loadData(team, function(data) {
+            var mindata = _.chain(data)
+                        .dataInYearRange(fromYear, toYear)
+                        .dataInMinuteRange(fromMin, toMin)
+                        .minutelyData().value();
+            callback(mindata);
+        });
+    } 
+
+    function initCompare(teamA, teamB, fromYear, toYear, fromMin, toMin) {
+        fromYear = fromYear || 1900;
+        toYear = toYear || 2000;
+        fromMin = fromMin || 0;
+        toMin = toMin || 100;
+        initMinutelyData(teamA, fromYear, toYear, fromMin, toMin, 
+                function(dA) {
+                    initMinutelyData(teamB, fromYear, toYear, fromMin, toMin, 
+                        function(dB) {
+                            var maxy = Math.max(_.maxGoals(dA), _.maxGoals(dB));
+                            updateMinutelyGraph(dA, maxy, 'left', fromMin, toMin);
+                            updateMinutelyGraph(dB, maxy, 'right', fromMin, toMin);
+                    });
+                });
+    }
+
+    initCompare('juve', 'milan', 1900, 2000, 10, 50);
 });
