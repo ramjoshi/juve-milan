@@ -1,11 +1,10 @@
-
-
 $(function(){
-
     
     var teams = ['juve', 'milan']; // declare team names to match names of respective csv files.
     var years = [];
     var yearly = {};
+    var minutes = [];
+    var m= {};
 
     function  loadData(team) {
         data = 'assets/data/' + team + '-goals.csv';
@@ -18,11 +17,27 @@ $(function(){
                 o[7] = parseInt(o[7]);
             });
 
+            byMin = _.groupBy(csv,function(row) {
+			return row[7];
+    	   });
+		console.log(byMin);
+
+
+	   _.each(byMin, function(rows, minute) {
+		   var min = _.groupBy(rows, function(row){
+			   return row[7];
+		   });
+				
+		minutes.push(minute);
+		m[minute]=min;
+	
+	   });	
+
             byYear = _.groupBy(csv, function(row) {
-                return row[2].toString('yyyy');
+		    return row[2].toString('yyyy');
             });
 	   
-	    console.log(byYear);
+	   
             _.each(byYear, function(rows, year) {
                 var minute = _.groupBy(rows, function(row) {
                     return row[7];
@@ -30,6 +45,7 @@ $(function(){
                 years.push(year);
                 yearly[year] = minute;
             });
+	    //console.log(years);
 
 
 	   
@@ -54,6 +70,7 @@ $(function(){
                        return 250 - goals*20;
                    })
                    .attr("width", 5)
+		   .style("fill","grey")		   
                    .attr("height", function(d, i) {
                        var goals = 0;
                        for(m in yearly[d]) {

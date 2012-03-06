@@ -1,0 +1,58 @@
+@bg: #EBEBEB;
+@grey25: #342826;
+@grey30: #413839;
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-size: 62.5%;
+    font-family: Helvetica, Arial, sans-serif;
+    background-color: @bg;
+}
+article {
+    margin: 2em 2em;
+}
+section {
+    ul {
+        font-size: 2.5em;
+        white-space: nowrap;
+        color: @grey30;
+        li {
+            display: inline-block;
+            margin: 0em 1em;
+            white-space: normal;
+            width: 4em;
+            list-style-type: none;
+        }
+    }
+}
+a.nav  {
+    font-size: 3em;
+    margin: 0em 1em;
+    text-decoration: none;
+    color: @grey25;
+}
+a.selected {
+    text-decoration: underline;
+}
+
+/* tooltip styling. by default the element to be styled is .tooltip  */
+.tooltip {
+	display:none;
+	background:transparent url(../img/black_arrow.png);
+	font-size:12px;
+	height:70px;
+	width:160px;
+	padding:25px;
+	color:#fff;	
+}
+
+/* style the trigger elements */
+#demo img {
+	border:0;
+	cursor:pointer;
+	margin:0 8px;
+}
