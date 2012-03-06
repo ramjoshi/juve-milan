@@ -1,11 +1,10 @@
-
-
 $(function(){
-
     
     var teams = ['juve', 'milan']; // declare team names to match names of respective csv files.
     var years = [];
     var yearly = {};
+    var minutes = [];
+    var m= {};
 
     function  loadData(team) {
         data = 'assets/data/' + team + '-goals.csv';
@@ -18,11 +17,27 @@ $(function(){
                 o[7] = parseInt(o[7]);
             });
 
+           byMin = _.groupBy(csv,function(row) {
+			return row[7];
+    	   });
+		console.log(byMin);
+
+
+	   _.each(byMin, function(rows, minute) {
+		   var min = _.groupBy(rows, function(row){
+			   return row[7];
+		   });
+				
+		minutes.push(minute);
+		m[minute]=min;
+	
+	   });	
+
             byYear = _.groupBy(csv, function(row) {
-                return row[2].toString('yyyy');
+		    return row[2].toString('yyyy');
             });
 	   
-	    console.log(byYear);
+	   
             _.each(byYear, function(rows, year) {
                 var minute = _.groupBy(rows, function(row) {
                     return row[7];
@@ -30,13 +45,14 @@ $(function(){
                 years.push(year);
                 yearly[year] = minute;
             });
+	    //console.log(years);
 
 
 	   
 	    if (team==='juve'){  //Change team corresponding to team of choice. This team will be the upper team
 	    var svg = d3.select("#table")
                 .append("svg")
-                .attr("width", 1000)
+                .attr("width", 1350)
                 .attr("height", 250)
 		
             svg.selectAll("rect")
@@ -44,16 +60,17 @@ $(function(){
                    .enter()
                    .append("rect")
 	           .attr("x", function(d, i) {
-                       return i*10;
+                       return i*15;
                    })
                    .attr("y", function(d, i) {
                        var goals = 0;
                        for(m in yearly[d]) {
                            goals += 1;
                        }
-                       return 250 - goals*20;
+                       return 250 - goals*15;
                    })
-                   .attr("width", 5)
+                   .attr("width", 12)
+		   .style("fill","grey")		   
                    .attr("height", function(d, i) {
                        var goals = 0;
                        for(m in yearly[d]) {
@@ -62,19 +79,42 @@ $(function(){
                        if(goals==9){console.log(d);}
                       return goals*20;
 		       })
+
+
+		   //Tooltip configuration here
+		       $('rect').qtip({
+
+				
+				   content: 'Juve',
+		   		   corner: {
+				         target: 'bottomLeft',
+		            		 tooltip: 'bottomLeft'
+			                  },
+				   style: { 
+				         border: {
+					          width: 3,
+					          radius: 8,
+					          color: '#6699CC'
+					       },
+				         width: 200
+				   }  });
+
+
+
+
 		}
 
 		   else{
 		        var svg2 = d3.select("#table")
                 		.append("svg")
-		                .attr("width", 1000)
+		                .attr("width", 1350)
         		        .attr("height", 400);
             		svg2.selectAll("rect")
                 	   .data(years)
 	                   .enter()
         	           .append("rect")
                 	   .attr("x", function(d, i) {
-                    	   return i*10;
+                    	   return i*15;
                   		 })
                            .attr("y", function(d, i) {
    	                    var goals = 0;
@@ -83,7 +123,7 @@ $(function(){
                        }
                        //return 400 - goals*20;
                    })
-                   .attr("width", 5)
+                   .attr("width", 12)
 		   .style("fill","red")		   
                    .attr("height", function(d, i) {
                        var goals = 0;
@@ -92,13 +132,37 @@ $(function(){
                        }
                        if(goals==9){console.log(d);}
                       return goals*20;
-		   }
-		   )
+		   } )
+		
+
+		   //Tooltip functionality here
+		   $('rect').qtip({
+
+				
+				   content: 'Milan',
+		   		   corner: {
+				         target: 'bottomLeft',
+		            		 tooltip: 'bottomLeft'
+			                  },
+				   style: { 
+				         border: {
+					          width: 3,
+					          radius: 8,
+					          color: '#6699CC'
+					       },
+				         width: 200
+				   }  });
+
 		 }
 	    }
         )};
      for (i=0;i<2;++i){loadData(teams[i]);}  
 
+
+
+
+
 }
 
 );
+
