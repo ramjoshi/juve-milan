@@ -108,7 +108,7 @@ $(function() {
                 else return (9*i+5)*xunit;
             })
             .attr('y', function(d, i) {
-                if(mindata[d]) return height - 10 - mindata[d].length*barheight_factor;
+                if(mindata[d]) return height + 10 - mindata[d].length*barheight_factor;
                 return height;
             })
     }
