@@ -111,7 +111,6 @@ $(function() {
         svg.selectAll('rect.'+align)
             .data(data)
             .transition()
-            .duration(10)
             .attr('y', function(d, i) {
                 if(mindata[d]) return height - mindata[d].length*barheight_factor;
                 return height;
@@ -124,7 +123,6 @@ $(function() {
             svg.selectAll('text.y'+align)
             .data(data)
             .transition()
-            .duration(10)
             .text(function(d, i) {
                 if(mindata[d]) return mindata[d].length;
                 else return '';
