@@ -1,7 +1,18 @@
 $(function() {
     var teamdata = {};
-    var teams = ['juve', 'milan']
+    var teams = ['juve', 'milan'];
     var columns = ['pos', 'comp', 'date', 'match', 'score', 'goalscorer', 'goalkeeper', 'min', 'part']; // csv data columns
+    var _year_range = [1900, 2000];
+    var _min_range = [0, 100];
+    function init(min_interval) {
+        _min_interval = min_interval;
+        data = _.range(_min_interval, 110, _min_interval);
+        // graph structure 4 unit wide adjacent bars separated by a unit of space
+        // |__4__|__4__|-1-|__4__|__4__|
+        // which determines this unit of measure _x_factor
+        _x_factor = 9*(_min_range[1]/_min_interval)-1;
+    }
+    init(10); // initialize with a minute interval of 10
 
     /*
      * Loads csv data from file and invokes callback function.
@@ -51,7 +62,7 @@ $(function() {
         },
         minutelyData: function (data, from, to) {
             return _.groupBy(data, function(row) {
-                return 10*(Math.floor(row[columnIndex('min')]/10)+1);
+                return _min_interval*(Math.floor(row[columnIndex('min')]/_min_interval)+1);
             });
         },
         maxGoals: function (data) {
@@ -61,19 +72,13 @@ $(function() {
         }
     });
 
-    // draw the initial graph
-    var data = _.range(10, 110, 10);
-    xunit_factor = 88;
-    function draw(mindata, maxy, align) {
-        var svg = d3.select('#graph svg');
+    function barGraph(svg, mindata, align, barheight_factor) {
         var width = $('#graph svg').width();
-        var xunit = width/xunit_factor;
+        var xunit = width/_x_factor;
         var height = $('#graph svg').height();
-        var barheight_factor = height*0.9/maxy;
-        svg.selectAll('rect.'+align)
+        svg.selectAll('rect.'+ align)
             .data(data)
-            .enter()
-            .append('rect').attr('class', align)
+            .transition()
             .attr('x', function(d, i) {
                 if(align=='left') return 9*i*xunit;
                 else return (9*i+4)*xunit;
@@ -87,12 +92,10 @@ $(function() {
                 if(mindata[d]) return mindata[d].length*barheight_factor;
                 else return 0;
             });
-
-            // y labels
-            svg.selectAll('text.y'+align)
+        // y labels
+        svg.selectAll('text.y'+align)
             .data(data)
-            .enter()
-            .append('text').attr('class', 'y'+align)
+            .transition()
             .text(function(d, i) {
                 if(mindata[d]) return mindata[d].length;
                 else return '';
@@ -102,40 +105,58 @@ $(function() {
                 else return (9*i+5)*xunit;
             })
             .attr('y', function(d, i) {
-                if(mindata[d]) return height + 10 - mindata[d].length*barheight_factor;
-                return height;
+                if(mindata[d]) {
+                    var y = height + 10 - mindata[d].length*barheight_factor;
+                    if(y < height) return y;
+                    else return y - 10;
+                }
+                else return height;
+            });
+        // x axis
+        svg.selectAll('text.x')
+            .data(data)
+            .transition()
+            .text(function(d, i) {
+                if(mindata[d]) return d-_min_interval + 'm - ' + d + 'm';
+                else return '';
             })
+            .attr('x', function(d, i) {
+                return (9*i+3)*xunit
+            })
+            .attr('y', height+10);
     }
 
+    // draw the initial graph
+    function draw(mindata, maxy, align) {
+        var svg = d3.select('#graph svg');
+        var height = $('#graph svg').height();
+        var barheight_factor = height*0.9/maxy;
+        svg.selectAll('rect.'+align)
+            .data(data)
+            .enter()
+            .append('rect').attr('class', align)
+        // y labels
+        svg.selectAll('text.y'+align)
+            .data(data)
+            .enter()
+            .append('text').attr('class', 'y'+align)
+        // x axis
+        svg.selectAll('text.x')
+            .data(data)
+            .enter()
+            .append('text').attr('class', 'x');
+        barGraph(svg, mindata, align, barheight_factor);
+    }
+
+    // interactively redraw the graph
     function redraw(mindata, align) {
         var svg = d3.select('#graph svg');
         var height = $('#graph svg').height();
         var barheight_factor = height*0.9/_maxy;
-        svg.selectAll('rect.'+align)
-            .data(data)
-            .transition()
-            .attr('y', function(d, i) {
-                if(mindata[d]) return height - mindata[d].length*barheight_factor;
-                return height;
-            })
-            .attr('height', function(d, i) {
-                if(mindata[d]) return mindata[d].length*barheight_factor;
-                else return 0;
-            });
-            // y labels
-            svg.selectAll('text.y'+align)
-            .data(data)
-            .transition()
-            .text(function(d, i) {
-                if(mindata[d]) return mindata[d].length;
-                else return '';
-            })
-            .attr('y', function(d, i) {
-                if(mindata[d]) return height + 10 - mindata[d].length*barheight_factor;
-                return height;
-            })
+        barGraph(svg, mindata, align, barheight_factor);
     }
 
+    // make those graphs work
     function processData(data, fromYear, toYear, fromMin, toMin) {
         return _.chain(data)
                 .dataInYearRange(fromYear, toYear)
@@ -143,18 +164,17 @@ $(function() {
                 .minutelyData().value();
     }
 
-    var _minutelyData = {}; // a global var to store current data
+    //var _minutelyData = {}; // a global var to store current data
     function initMinutelyData(team, fromYear, toYear, fromMin, toMin, callback) {
         loadData(team, function(data) {
             var mindata = processData(data, fromYear, toYear, fromMin, toMin);
-            _minutelyData[team] = mindata;
+            //_minutelyData[team] = mindata;
             callback(mindata);
         });
     } 
 
-    _year_range = [1900, 2000]
-    _min_range = [0, 100]
-    function initCompare(teamA, teamB, fromYear, toYear, fromMin, toMin) {
+
+    function compare(teamA, teamB, fromYear, toYear, fromMin, toMin) {
         _fromYear = fromYear || _year_range[0];
         _toYear = toYear || _year_range[1];
         _fromMin = fromMin || _min_range[0];
@@ -166,34 +186,37 @@ $(function() {
                             _maxy = Math.max(_.maxGoals(dA), _.maxGoals(dB));
                             draw(dA, _maxy, 'left', fromMin, toMin);
                             draw(dB, _maxy, 'right', fromMin, toMin);
-                            // x axis
-                            var width = $('#graph svg').width();
-                            var xunit = width/xunit_factor;
-                            var height = $('#graph svg').height();
-                            var svg = d3.select('#graph svg');
-                            svg.selectAll('text.x')
-                            .data(data)
-                            .enter()
-                            .append('text').attr('class', 'x')
-                            .text(function(d, i) {
-                                return d-10 + 'm - ' + d + 'm';
-                            })
-                            .attr('x', function(d, i) {
-                                return (9*i+2)*xunit
-                            })
-                            .attr('y', height+10);
                         });
                 });
     }
 
-    function recompare() {
+    function recompare(with_rescale) {
         var dA = processData(teamdata[teams[0]], _fromYear, _toYear, _fromMin, _toMin);
-        redraw(dA, 'left');
         var dB = processData(teamdata[teams[1]], _fromYear, _toYear, _fromMin, _toMin);
+        if(with_rescale) {
+            _maxy = Math.max(_.maxGoals(dA), _.maxGoals(dB));
+        }
+        redraw(dA, 'left');
         redraw(dB, 'right');
     }
 
+    function update_min_interval(min_interval) {
+        var empty = {};
+        redraw(empty, 'left');
+        redraw(empty, 'right');
+        var svg = d3.select('#graph svg');
+        svg.selectAll('text.x')
+        .data(data)
+        .transition()
+        .text(function(d, i) {
+            return '';
+        })
+        init(min_interval);
+        recompare(true);
+    }
+
     // Interactive sliders
+    // year
     $('#slider-year').slider({
         range: true,
         min: _year_range[0],
@@ -204,7 +227,7 @@ $(function() {
             _toYear = ui.values[1];
             $('#slider-year a.ui-slider-handle').eq(0).text('Year ' + _fromYear);
             $('#slider-year a.ui-slider-handle').eq(1).text('Year ' + _toYear);
-            recompare();
+            recompare(false);
         }
     });
     $('#slider-year a.ui-slider-handle').eq(0)
@@ -212,6 +235,7 @@ $(function() {
     $('#slider-year a.ui-slider-handle').eq(1)
         .text('Year ' + $('#slider-year').slider('values', 1));
 
+    // minute
     $('#slider-min').slider({
         range: true,
         min: _min_range[0],
@@ -220,9 +244,9 @@ $(function() {
         slide: function(event, ui) {
             _fromMin = ui.values[0];
             _toMin = ui.values[1];
-            $('#slider-min a.ui-slider-handle').eq(0).text(_fromMin);
-            $('#slider-min a.ui-slider-handle').eq(1).text(_toMin);
-            recompare();
+            $('#slider-min a.ui-slider-handle').eq(0).text(_fromMin + ' min');
+            $('#slider-min a.ui-slider-handle').eq(1).text(_toMin + ' min');
+            recompare(false);
         }
     });
     $('#slider-min a.ui-slider-handle').eq(0)
@@ -230,5 +254,18 @@ $(function() {
     $('#slider-min a.ui-slider-handle').eq(1)
         .text($('#slider-min').slider('values', 1) + ' min');
 
-    initCompare(teams[0], teams[1]);
+    // minute interval
+    $('#slider-min-interval').slider({
+        min: 10,
+        max: _min_range[1],
+        step: 5,
+        value: _min_interval,
+        slide: function(event, ui) {
+            $('#slider-min-interval a.ui-slider-handle').text(ui.value + ' min intervals');
+            update_min_interval(ui.value);
+        }
+    });
+    $('#slider-min-interval a.ui-slider-handle').text(_min_interval + ' min intervals');
+
+    compare(teams[0], teams[1]);
 });

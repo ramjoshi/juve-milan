@@ -1,6 +1,8 @@
-@bg: #EBEBEB;
+@bg: #A6A3A2;
 @grey25: #342826;
 @grey30: #413839;
+@grey50: #747170;
+@steelblue: #4863A0; @complimentary: #a18648;
 
 html, body {
     margin: 0;
@@ -10,6 +12,20 @@ html, body {
 body {
     font-size: 62.5%;
     font-family: Helvetica, Arial, sans-serif;
+    background-color: @bg;
+}
+.legend {
+    font-size: 1.2em;
+    margin: .3333em 0em 0em 2em;
+    padding: 0em 0em 0em 1em;
+    width: 20em;
+    color: white;
+}
+#juve {
+    background-color: @steelblue;
+}
+#milan {
+    background-color: @complimentary;
 }
 article {
 }
@@ -22,10 +38,10 @@ section {
         height: 40em;
         padding-bottom: 10px;
         rect.left {
-            fill: red;
+            fill: @steelblue;
         }
         rect.right {
-            fill: blue;
+            fill: @complimentary;
         }
         text.x {
             font-weight: bold;
@@ -39,11 +55,16 @@ section {
 #control {
     width: 102.4em;
     .slider {
-        margin: 0em 3em 1em 1em;
+        margin: 0em 5em 1em 0em;
         a.ui-slider-handle {
             width: 6em;
             text-align: center;
             text-decoration: none;
         }
+    }
+}
+#slider-min-interval {
+    a.ui-slider-handle {
+        width: 9em !important;
     }
 }
