@@ -29,6 +29,7 @@ $(function() {
         return _.indexOf(columns, column);
     }
 
+    // functions for processing data
     _.mixin({
         dataInYearRange: function (data, from, to) {
             return _.filter(data, function(row) {
@@ -61,7 +62,7 @@ $(function() {
 
     var data = _.range(10, 110, 10);
     xunit_factor = 88;
-    function updateMinutelyGraph(mindata, maxy, align) {
+    function draw(mindata, maxy, align) {
         var svg = d3.select('#graph svg');
         var width = $('#graph svg').width();
         var xunit = width/xunit_factor;
@@ -84,7 +85,7 @@ $(function() {
                 if(mindata[d]) return mindata[d].length*barheight_factor;
                 else return 0;
             });
-            
+
             // y labels
             svg.selectAll('text.y'+align)
             .data(data)
@@ -158,8 +159,8 @@ $(function() {
                     initMinutelyData(teamB, _fromYear, _toYear, _fromMin, _toMin, 
                         function(dB) {
                             _maxy = Math.max(_.maxGoals(dA), _.maxGoals(dB));
-                            updateMinutelyGraph(dA, _maxy, 'left', fromMin, toMin);
-                            updateMinutelyGraph(dB, _maxy, 'right', fromMin, toMin);
+                            draw(dA, _maxy, 'left', fromMin, toMin);
+                            draw(dB, _maxy, 'right', fromMin, toMin);
                             // x axis
                             var width = $('#graph svg').width();
                             var xunit = width/xunit_factor;
