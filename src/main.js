@@ -92,6 +92,19 @@ $(function() {
                 if(mindata[d]) return mindata[d].length*barheight_factor;
                 else return 0;
             });
+     //Sidebar functionality//
+
+		$(document).ready(
+
+		function() {
+			$('rect:nth-child(1)').click(function() {
+				alert("sucess!");
+			});
+		})
+
+        //End Sidebar
+
+
         // y labels
         svg.selectAll('text.y'+align)
             .data(data)
