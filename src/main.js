@@ -1,5 +1,6 @@
 $(function() {
     var teamdata = {};
+    var teams = ['juve', 'milan']
     var columns = ['pos', 'comp', 'date', 'match', 'score', 'goalscorer', 'goalkeeper', 'min', 'part']; // csv data columns
 
     /*
@@ -186,12 +187,13 @@ $(function() {
     }
 
     function recompare() {
-        var dA = processData(teamdata['juve'], _fromYear, _toYear, _fromMin, _toMin);
+        var dA = processData(teamdata[teams[0]], _fromYear, _toYear, _fromMin, _toMin);
         redraw(dA, 'left');
-        var dB = processData(teamdata['milan'], _fromYear, _toYear, _fromMin, _toMin);
+        var dB = processData(teamdata[teams[1]], _fromYear, _toYear, _fromMin, _toMin);
         redraw(dB, 'right');
     }
 
+    // Interactive sliders
     $('#slider-year').slider({
         range: true,
         min: _year_range[0],
@@ -200,9 +202,16 @@ $(function() {
         slide: function(event, ui) {
             _fromYear = ui.values[0];
             _toYear = ui.values[1];
+            $('#slider-year a.ui-slider-handle').eq(0).text('Year ' + _fromYear);
+            $('#slider-year a.ui-slider-handle').eq(1).text('Year ' + _toYear);
             recompare();
         }
     });
+    $('#slider-year a.ui-slider-handle').eq(0)
+        .text('Year ' + $('#slider-year').slider('values', 0));
+    $('#slider-year a.ui-slider-handle').eq(1)
+        .text('Year ' + $('#slider-year').slider('values', 1));
+
     $('#slider-min').slider({
         range: true,
         min: _min_range[0],
@@ -211,10 +220,15 @@ $(function() {
         slide: function(event, ui) {
             _fromMin = ui.values[0];
             _toMin = ui.values[1];
-            console.log(_fromMin);
-            console.log(_toMin);
+            $('#slider-min a.ui-slider-handle').eq(0).text(_fromMin);
+            $('#slider-min a.ui-slider-handle').eq(1).text(_toMin);
             recompare();
         }
     });
-    initCompare('juve', 'milan');
+    $('#slider-min a.ui-slider-handle').eq(0)
+        .text($('#slider-min').slider('values', 0) + ' min');
+    $('#slider-min a.ui-slider-handle').eq(1)
+        .text($('#slider-min').slider('values', 1) + ' min');
+
+    initCompare(teams[0], teams[1]);
 });
