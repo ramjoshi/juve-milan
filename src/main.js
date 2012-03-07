@@ -60,6 +60,7 @@ $(function() {
         }
     });
 
+    // draw the initial graph
     var data = _.range(10, 110, 10);
     xunit_factor = 88;
     function draw(mindata, maxy, align) {
@@ -141,19 +142,22 @@ $(function() {
                 .minutelyData().value();
     }
 
+    var _minutelyData = {}; // a global var to store current data
     function initMinutelyData(team, fromYear, toYear, fromMin, toMin, callback) {
         loadData(team, function(data) {
             var mindata = processData(data, fromYear, toYear, fromMin, toMin);
+            _minutelyData[team] = mindata;
             callback(mindata);
         });
     } 
 
     _year_range = [1900, 2000]
+    _min_range = [0, 100]
     function initCompare(teamA, teamB, fromYear, toYear, fromMin, toMin) {
         _fromYear = fromYear || _year_range[0];
         _toYear = toYear || _year_range[1];
-        _fromMin = fromMin || 0
-        _toMin = toMin || 100;
+        _fromMin = fromMin || _min_range[0];
+        _toMin = toMin || _min_range[1];
         initMinutelyData(teamA, _fromYear, _toYear, _fromMin, _toMin, 
                 function(dA) {
                     initMinutelyData(teamB, _fromYear, _toYear, _fromMin, _toMin, 
@@ -181,10 +185,10 @@ $(function() {
                 });
     }
 
-    function recompare(fromYear, toYear, fromMin, toMin) {
-        var dA = processData(teamdata['juve'], fromYear, toYear, fromMin, toMin);
+    function recompare() {
+        var dA = processData(teamdata['juve'], _fromYear, _toYear, _fromMin, _toMin);
         redraw(dA, 'left');
-        var dB = processData(teamdata['milan'], fromYear, toYear, fromMin, toMin);
+        var dB = processData(teamdata['milan'], _fromYear, _toYear, _fromMin, _toMin);
         redraw(dB, 'right');
     }
 
@@ -194,9 +198,23 @@ $(function() {
         max: _year_range[1],
         values: _year_range,
         slide: function(event, ui) {
-            recompare(ui.values[0],ui.values[1],_fromMin,_toMin);
+            _fromYear = ui.values[0];
+            _toYear = ui.values[1];
+            recompare();
         }
     });
-
+    $('#slider-min').slider({
+        range: true,
+        min: _min_range[0],
+        max: _min_range[1],
+        values: _min_range,
+        slide: function(event, ui) {
+            _fromMin = ui.values[0];
+            _toMin = ui.values[1];
+            console.log(_fromMin);
+            console.log(_toMin);
+            recompare();
+        }
+    });
     initCompare('juve', 'milan');
 });
