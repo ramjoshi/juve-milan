@@ -1,5 +1,5 @@
 $(function() {
-    var data = {};
+    var teamdata = {};
     var columns = ['pos', 'comp', 'date', 'match', 'score', 'goalscorer', 'goalkeeper', 'min', 'part']; // csv data columns
 
     /*
@@ -7,7 +7,7 @@ $(function() {
      */
     var loadData = function(team, callback) {
         var csv = 'assets/data/' + team + '-goals.csv';
-        if(data[team]) callback(data[team]); // check cache
+        if(teamdata[team]) callback(teamdata[team]); // check cache
         else {
             d3.text(csv, function(datasetText) {
                 var dt = d3.csv.parseRows(datasetText);
@@ -18,7 +18,7 @@ $(function() {
                     row[columnIndex('date')] = Date.parse(row[columnIndex('date')]);
                     row[columnIndex('min')] = parseInt(row[columnIndex('min')]);
                 });
-                data[team] = dt; // cache data
+                teamdata[team] = dt; // cache data
                 callback(dt);
             });
         }
@@ -59,13 +59,14 @@ $(function() {
         }
     });
 
+    var data = _.range(10, 110, 10);
+    xunit_factor = 88;
     function updateMinutelyGraph(mindata, maxy, align) {
         var svg = d3.select('#graph svg');
         var width = $('#graph svg').width();
-        var xunit = width/88;
+        var xunit = width/xunit_factor;
         var height = $('#graph svg').height();
         var barheight_factor = height*0.9/maxy;
-        var data = _.range(10, 110, 10);
         svg.selectAll('rect.'+align)
             .data(data)
             .enter()
@@ -83,25 +84,15 @@ $(function() {
                 if(mindata[d]) return mindata[d].length*barheight_factor;
                 else return 0;
             });
-            // x axis
-            svg.selectAll('text.x')
-            .data(data)
-            .enter()
-            .append('text').attr('class', 'x')
-            .text(function(d, i) {
-                return d-10 + 'm - ' + d + 'm';
-            })
-            .attr('x', function(d, i) {
-                return (9*i+2)*xunit
-            })
-            .attr('y', height+10);
+            
             // y labels
             svg.selectAll('text.y'+align)
             .data(data)
             .enter()
             .append('text').attr('class', 'y'+align)
             .text(function(d, i) {
-                return mindata[d].length;
+                if(mindata[d]) return mindata[d].length;
+                else return '';
             })
             .attr('x', function(d, i) {
                 if(align=='left') return (9*i+1)*xunit;
@@ -113,33 +104,100 @@ $(function() {
             })
     }
 
+    function redraw(mindata, align) {
+        var svg = d3.select('#graph svg');
+        var height = $('#graph svg').height();
+        var barheight_factor = height*0.9/_maxy;
+        svg.selectAll('rect.'+align)
+            .data(data)
+            .transition()
+            .duration(10)
+            .attr('y', function(d, i) {
+                if(mindata[d]) return height - mindata[d].length*barheight_factor;
+                return height;
+            })
+            .attr('height', function(d, i) {
+                if(mindata[d]) return mindata[d].length*barheight_factor;
+                else return 0;
+            });
+            // y labels
+            svg.selectAll('text.y'+align)
+            .data(data)
+            .transition()
+            .duration(10)
+            .text(function(d, i) {
+                if(mindata[d]) return mindata[d].length;
+                else return '';
+            })
+            .attr('y', function(d, i) {
+                if(mindata[d]) return height + 10 - mindata[d].length*barheight_factor;
+                return height;
+            })
+    }
+
+    function processData(data, fromYear, toYear, fromMin, toMin) {
+        return _.chain(data)
+                .dataInYearRange(fromYear, toYear)
+                .dataInMinuteRange(fromMin, toMin)
+                .minutelyData().value();
+    }
+
     function initMinutelyData(team, fromYear, toYear, fromMin, toMin, callback) {
         loadData(team, function(data) {
-            var mindata = _.chain(data)
-                        .dataInYearRange(fromYear, toYear)
-                        .dataInMinuteRange(fromMin, toMin)
-                        .minutelyData().value();
+            var mindata = processData(data, fromYear, toYear, fromMin, toMin);
             callback(mindata);
         });
     } 
 
+    _year_range = [1900, 2000]
     function initCompare(teamA, teamB, fromYear, toYear, fromMin, toMin) {
-        fromYear = fromYear || 1900;
-        toYear = toYear || 2000;
-        fromMin = fromMin || 0
-        toMin = toMin || 100;
-        initMinutelyData(teamA, fromYear, toYear, fromMin, toMin, 
+        _fromYear = fromYear || _year_range[0];
+        _toYear = toYear || _year_range[1];
+        _fromMin = fromMin || 0
+        _toMin = toMin || 100;
+        initMinutelyData(teamA, _fromYear, _toYear, _fromMin, _toMin, 
                 function(dA) {
-                    initMinutelyData(teamB, fromYear, toYear, fromMin, toMin, 
+                    initMinutelyData(teamB, _fromYear, _toYear, _fromMin, _toMin, 
                         function(dB) {
-                            console.log(dA);
-                            console.log(dB);
-                            var maxy = Math.max(_.maxGoals(dA), _.maxGoals(dB));
-                            updateMinutelyGraph(dA, maxy, 'left', fromMin, toMin);
-                            updateMinutelyGraph(dB, maxy, 'right', fromMin, toMin);
-                    });
+                            _maxy = Math.max(_.maxGoals(dA), _.maxGoals(dB));
+                            updateMinutelyGraph(dA, _maxy, 'left', fromMin, toMin);
+                            updateMinutelyGraph(dB, _maxy, 'right', fromMin, toMin);
+                            // x axis
+                            var width = $('#graph svg').width();
+                            var xunit = width/xunit_factor;
+                            var height = $('#graph svg').height();
+                            var svg = d3.select('#graph svg');
+                            svg.selectAll('text.x')
+                            .data(data)
+                            .enter()
+                            .append('text').attr('class', 'x')
+                            .text(function(d, i) {
+                                return d-10 + 'm - ' + d + 'm';
+                            })
+                            .attr('x', function(d, i) {
+                                return (9*i+2)*xunit
+                            })
+                            .attr('y', height+10);
+                        });
                 });
     }
+
+    function recompare(fromYear, toYear, fromMin, toMin) {
+        var dA = processData(teamdata['juve'], fromYear, toYear, fromMin, toMin);
+        redraw(dA, 'left');
+        var dB = processData(teamdata['milan'], fromYear, toYear, fromMin, toMin);
+        redraw(dB, 'right');
+    }
+
+    $('#slider-year').slider({
+        range: true,
+        min: _year_range[0],
+        max: _year_range[1],
+        values: _year_range,
+        slide: function(event, ui) {
+            recompare(ui.values[0],ui.values[1],_fromMin,_toMin);
+        }
+    });
 
     initCompare('juve', 'milan');
 });

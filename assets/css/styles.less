@@ -10,15 +10,18 @@ html, body {
 body {
     font-size: 62.5%;
     font-family: Helvetica, Arial, sans-serif;
-    background-color: @bg;
 }
 article {
     margin: 2em;
 }
+section {
+    margin: 2em;
+    padding: 2em;
+}
 #graph {
     svg {
         width: 102.4em;
-        height: 50em;
+        height: 40em;
         padding-bottom: 10px;
         rect.left {
             fill: red;
@@ -26,9 +29,15 @@ article {
         rect.right {
             fill: blue;
         }
+        text.x {
+            font-weight: bold;
+        }
         text.yleft, text.yright {
             fill: white;
             font-weight: bold;
         }
     }
+}
+#control {
+    width: 102.4em;
 }
