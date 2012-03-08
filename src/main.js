@@ -213,7 +213,8 @@ $(function() {
             return '';
         })
         init(min_interval);
-        recompare(true);
+        var with_rescale = $('#autoscale').is(':checked');
+        recompare(with_rescale);
     }
 
     // Interactive sliders
@@ -228,7 +229,8 @@ $(function() {
             _toYear = ui.values[1];
             $('#slider-year a.ui-slider-handle').eq(0).text('Year ' + _fromYear);
             $('#slider-year a.ui-slider-handle').eq(1).text('Year ' + _toYear);
-            recompare(false);
+            var with_rescale = $('#autoscale').is(':checked');
+            recompare(with_rescale);
         }
     });
     $('#slider-year a.ui-slider-handle').eq(0)
@@ -247,7 +249,8 @@ $(function() {
             _toMin = ui.values[1];
             $('#slider-min a.ui-slider-handle').eq(0).text(_fromMin + ' min');
             $('#slider-min a.ui-slider-handle').eq(1).text(_toMin + ' min');
-            recompare(false);
+            var with_rescale = $('#autoscale').is(':checked');
+            recompare(with_rescale);
         }
     });
     $('#slider-min a.ui-slider-handle').eq(0)
