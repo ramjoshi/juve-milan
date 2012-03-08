@@ -1,50 +1,78 @@
-@bg: #A6A3A2;
-@grey25: #342826;
-@grey30: #413839;
-@grey50: #747170;
-@steelblue: #4863A0; @complimentary: #a18648;
+@juve: #323232;
+@milan: #FF3232;
 
 html, body {
     margin: 0;
     padding: 0;
 }
-
+.cover_image (@url) {
+    background: url('@{url}') no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+.rounded-corners (@radius: 5px) {
+    border-radius: @radius;
+    -webkit-border-radius: @radius;
+    -moz-border-radius: @radius;
+}
 body {
     font-size: 62.5%;
     font-family: Helvetica, Arial, sans-serif;
-    background-color: @bg;
+    .cover_image('../images/stadium.jpg');
+    color: white;
+}
+
+#superheader {
+    width: 100%;
+    font-size: 3em;
+    text-align: center;
+    color: #999;
+    background-color: rgba(0,0,0,.7);
+}
+#wrapper {
+    width: 102.4em;
+    margin: 0px auto;
+    padding: 2em;
+    margin-top: 5em;
+    background-color: rgba(0,0,0,.85);
+    .rounded-corners;
 }
 .legend {
     font-size: 1.2em;
     margin: .3333em 0em 0em 2em;
-    padding: 0em 0em 0em 1em;
-    width: 20em;
+    width: 10em;
+    text-align: center;
     color: white;
 }
 #juve {
-    background-color: @steelblue;
+    background-color: @juve;
 }
 #milan {
-    background-color: @complimentary;
+    background-color: @milan;
 }
 article {
+    margin: 0px auto;
 }
+
 section {
-    margin: 0em 1em 1em 1em;
+    margin-bottom: 1em;
 }
 #graph {
     svg {
         width: 102.4em;
         height: 35em;
-        padding-bottom: 10px;
+        padding-bottom: 1em;
         rect.left {
-            fill: @steelblue;
+            fill: @milan;
         }
         rect.right {
-            fill: @complimentary;
+            fill: @juve;
         }
         text.x {
             font-weight: bold;
+            fill: white;
         }
         text.yleft, text.yright {
             fill: white;
@@ -60,14 +88,24 @@ section {
             width: 6em;
             text-align: center;
             text-decoration: none;
+            color: black;
         }
     }
     label {
-        color: #111;
+        color: white;
     }
 }
 #slider-min-interval {
     a.ui-slider-handle {
         width: 9em !important;
+    }
+}
+
+#notice {
+    float: right;
+    margin-right: 2em;
+    a, a:visited, a:hover {
+        text-decoration: none;
+        color: white;
     }
 }

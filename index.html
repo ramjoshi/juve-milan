@@ -15,18 +15,24 @@
     <script src='assets/js/less-1.2.2.min.js' type='text/javascript'></script>
   </head>
   <body>
-    <header>
-      <div id='juve' class='legend'>Juventus Goals</div>
-      <div id='milan' class='legend'>Milan Goals</div>
-    </header>
-    <article id='chart'>
-      <section id='graph'><svg></svg></section>
-      <section id='control'>
-          <div id='slider-min-interval' class='slider'></div>
-          <div id='slider-min' class='slider'></div>
-          <div id='slider-year' class='slider'></div>
-          <label for='autoscale'>Autoscale heights</label><input checked='checked' id='autoscale' type='checkbox' />
-      </section>
-    </article>
+    <div id='superheader'>Interactive visual analysis of over 100 years of AC Milan vs Juventus matches</div>
+    <div id='wrapper'>
+      <header>
+        <div id='milan' class='legend'>Milan Goals</div>
+        <div id='juve' class='legend'>Juventus Goals</div>
+      </header>
+      <article id='chart'>
+        <section id='graph'><svg></svg></section>
+        <section id='control'>
+            <div id='slider-min-interval' class='slider'></div>
+            <div id='slider-min' class='slider'></div>
+            <div id='slider-year' class='slider'></div>
+            <label for='autoscale'>Autoscale heights</label><input checked='checked' id='autoscale' type='checkbox' />
+        </section>
+      </article>
+    </div>
+    <footer>
+      <div id='notice'><a target='_blank' href='http://www.gm93.com/visfoto.asp?id=34'>Background image source</a></div>
+    </footer>
   </body>
 </html>
