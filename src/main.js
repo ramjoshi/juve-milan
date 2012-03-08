@@ -2,7 +2,7 @@ $(function() {
     var teamdata = {};
     var teams = ['juve', 'milan'];
     var columns = ['pos', 'comp', 'date', 'match', 'score', 'goalscorer', 'goalkeeper', 'min', 'part']; // csv data columns
-    var _year_range = [1900, 2000];
+    var _year_range = [1900, 2012];
     var _min_range = [0, 100];
     function init(min_interval) {
         _min_interval = min_interval;
@@ -73,6 +73,7 @@ $(function() {
     });
 
     function barGraph(svg, mindata, align, barheight_factor) {
+        console.log(mindata);
         var width = $('#graph svg').width();
         var xunit = width/_x_factor;
         var height = $('#graph svg').height();
